@@ -31,7 +31,12 @@ public class AuthController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body("User created please login");
 
-        } catch (Exception e) {
+        }
+        catch (RuntimeException r){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(r.getMessage());
+        }
+        catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Invalid email or password format");
         }

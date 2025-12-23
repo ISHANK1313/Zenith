@@ -1,5 +1,4 @@
 package com.example.Zenith.util;
-
 import com.example.Zenith.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,10 +35,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
         if(username!=null&& SecurityContextHolder.getContext().getAuthentication()==null){
-            UsernamePasswordAuthenticationToken authToken
-                    = new UsernamePasswordAuthenticationToken(username, null, List.of());
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+            if(userService.isEmailExists(username)) {
+                UsernamePasswordAuthenticationToken authToken
+                        = new UsernamePasswordAuthenticationToken(username, null, List.of());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
         }
        filterChain.doFilter(request,response);
     }

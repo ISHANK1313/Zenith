@@ -24,9 +24,14 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     public boolean signUp(SignupDto signupDto){
-      if(isEmailExists(signupDto.getEmail())){
-          return false;
-      }
+        if(isEmailExists(signupDto.getEmail())){
+            throw new RuntimeException("Email already exists");
+        }
+
+
+        if(isUserNameExists(signupDto.getUserName())){
+            throw new RuntimeException("Username already taken");
+        }
         Users users= new Users();
         users.setEmail(signupDto.getEmail());
         users.setPassword(passwordEncoder.encode(signupDto.getPassword()));
@@ -40,7 +45,7 @@ public class UserService {
         return userRepo.existsByUsername(userName);
     }
     public boolean isEmailExists(String email){
-        return userRepo.exitsByEmail(email);
+        return userRepo.existsByEmail(email);
     }
 
     public AuthResponse logIn(LoginDto loginDto){
