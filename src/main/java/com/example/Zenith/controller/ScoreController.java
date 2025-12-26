@@ -26,8 +26,8 @@ public class ScoreController {
     private UserRepo userRepo;
     @Autowired
     private LeaderBoardService leaderBoardService;
-   @PostMapping("/addscore/{score}")
-    public ResponseEntity<?> addScore(@Valid @PathVariable ScoreSubmitDto submitDto) {
+   @PostMapping("/addscore")
+    public ResponseEntity<?> addScore(@Valid @RequestBody ScoreSubmitDto submitDto) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -56,7 +56,7 @@ public class ScoreController {
             }
             List<Scores> scoresList = scoreService.getAllScoresForUser(usersOptional.get());
             if (scoresList.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("scores does not exist");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("scores does not exist");
             }
             return ResponseEntity.ok(scoresList);
         }

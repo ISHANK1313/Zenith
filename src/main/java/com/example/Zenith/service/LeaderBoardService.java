@@ -23,7 +23,7 @@ public class LeaderBoardService {
     public void updateScore(String username, Long score) {
         // be sure that username exists before only then submit score in redis
         Double currentScore = redisTemplate.opsForZSet().score(LEADERBOARD, username);
-        if (currentScore==null||(redisTemplate.opsForZSet().score(LEADERBOARD, username) < score)) {
+        if (currentScore==null||currentScore < score) {
             redisTemplate.opsForZSet().add(LEADERBOARD, username, score);
         }
     }
