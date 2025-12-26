@@ -22,7 +22,8 @@ public class LeaderBoardService {
     private String LEADERBOARD="leaderboard:global";
     public void updateScore(String username, Long score) {
         // be sure that username exists before only then submit score in redis
-        if ((redisTemplate.opsForZSet().score(LEADERBOARD, username) < score)) {
+        Double currentScore = redisTemplate.opsForZSet().score(LEADERBOARD, username);
+        if (currentScore==null||(redisTemplate.opsForZSet().score(LEADERBOARD, username) < score)) {
             redisTemplate.opsForZSet().add(LEADERBOARD, username, score);
         }
     }
@@ -63,11 +64,8 @@ public class LeaderBoardService {
             return null;
         }
 
-        Long score = redisTemplate.opsForZSet().score(LEADERBOARD, username).longValue();
-        if(score==null){
-            return null;
-        }
-        return score;
+        Double score = redisTemplate.opsForZSet().score(LEADERBOARD, username);
+        return score != null ? score.longValue() : null;
     }
 
 }

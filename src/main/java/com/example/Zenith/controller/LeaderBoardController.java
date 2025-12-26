@@ -26,12 +26,13 @@ public class LeaderBoardController {
         try {
             Long rank = leaderBoardService.getRank(username);
             if (rank == null) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("username does not exist");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("username does not exist");
             }
             return ResponseEntity.ok(rank);
         }
-        catch (UserBelow10KException e){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        catch (UserBelow10KException e) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(e.getMessage());
         }
 
     }
@@ -40,7 +41,7 @@ public class LeaderBoardController {
     public ResponseEntity<?> getScoreOfUsername(@Valid @RequestParam String username){
         Long score=leaderBoardService.getScore(username);
         if(score==null){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("username does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("username does not exist");
         }
         return ResponseEntity.ok(score);
     }

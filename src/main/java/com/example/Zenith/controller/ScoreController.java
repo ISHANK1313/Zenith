@@ -1,5 +1,6 @@
 package com.example.Zenith.controller;
 
+import com.example.Zenith.dto.ScoreSubmitDto;
 import com.example.Zenith.entity.Scores;
 import com.example.Zenith.entity.Users;
 import com.example.Zenith.repository.UserRepo;
@@ -26,23 +27,19 @@ public class ScoreController {
     @Autowired
     private LeaderBoardService leaderBoardService;
    @PostMapping("/addscore/{score}")
-    public ResponseEntity<?> addScore(@Valid @PathVariable Long score) {
+    public ResponseEntity<?> addScore(@Valid @PathVariable ScoreSubmitDto submitDto) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
             String email = (String) auth.getPrincipal();
-            Optional<Users> usersOptional = userRepo.findByEmail(email);
-
-            if (usersOptional.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("User not found");
-            }
-            scoreService.addScore(usersOptional.get(), score);
-            leaderBoardService.updateScore(usersOptional.get().getUsername(),score);
+            Users user = userRepo.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            scoreService.addScore(user, submitDto.getScore());
+            leaderBoardService.updateScore(user.getUsername(), submitDto.getScore());
             return ResponseEntity.status(HttpStatus.CREATED).body("score added");
         }
             catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("something wrong happened");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("failed to submit score");
             }
 
 
