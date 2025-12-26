@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface ScoresRepo extends JpaRepository<Scores,Long> {
     Optional<List<Scores>> findByUsers(Users users);
+    List<Scores>findByUsersOrderBySubmittedAtDesc(Users users);
 
 
 }

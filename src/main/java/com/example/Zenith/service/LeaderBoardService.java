@@ -1,6 +1,8 @@
 package com.example.Zenith.service;
 
 import com.example.Zenith.dto.LeaderBoardEntryDto;
+import com.example.Zenith.entity.Scores;
+import com.example.Zenith.entity.Users;
 import com.example.Zenith.exception.UserBelow10KException;
 import com.example.Zenith.repository.ScoresRepo;
 import com.example.Zenith.repository.UserRepo;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -19,12 +22,20 @@ public class LeaderBoardService {
     private RedisTemplate<String,String> redisTemplate;
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private ScoresRepo scoresRepo;
     private String LEADERBOARD="leaderboard:global";
     public void updateScore(String username, Long score) {
         // be sure that username exists before only then submit score in redis
         Double currentScore = redisTemplate.opsForZSet().score(LEADERBOARD, username);
         if (currentScore==null||currentScore < score) {
             redisTemplate.opsForZSet().add(LEADERBOARD, username, score);
+        }
+        Long totalPlayers = redisTemplate.opsForZSet().zCard(LEADERBOARD);
+        if (totalPlayers != null && totalPlayers > 10000) {
+            // Remove lowest-ranked players
+            long excess = totalPlayers - 10000;
+            redisTemplate.opsForZSet().removeRange(LEADERBOARD, 0, excess - 1);
         }
     }
 
@@ -49,23 +60,35 @@ public class LeaderBoardService {
             return null;
         }
         Long rank = redisTemplate.opsForZSet().reverseRank(LEADERBOARD, username);
-        if(rank==null){
-            return null;
-        }
-        if (rank > 10000) {
-            throw new UserBelow10KException("The user rank is below 10K... Keep Playing to climb up");
+        if (rank == null) {
+            throw new UserBelow10KException("User not in top 10,000. Keep playing!");
         }
         return rank + 1;
     }
 
     //marked
     public Long getScore(String username){
-        if(!userRepo.existsByUsername(username)){
+        if (!userRepo.existsByUsername(username)){
             return null;
         }
 
-        Double score = redisTemplate.opsForZSet().score(LEADERBOARD, username);
-        return score != null ? score.longValue() : null;
+        Double redisScore = redisTemplate. opsForZSet().score(LEADERBOARD, username);
+        if (redisScore != null) {
+            return redisScore. longValue();
+        }
+
+
+        Users user = userRepo.findByUsername(username).orElse(null);
+        if (user == null) return null;
+
+        List<Scores> scores = scoresRepo.findByUsersOrderBySubmittedAtDesc(user);
+        if (scores.isEmpty()) return null;
+
+        // Return highest score
+        return scores.stream()
+                .mapToLong(Scores::getScore)
+                .max()
+                .orElse(0L);
     }
 
 }
