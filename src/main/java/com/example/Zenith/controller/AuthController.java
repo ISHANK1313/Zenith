@@ -45,9 +45,9 @@ public class AuthController {
     public ResponseEntity<?> logIn(@Valid @RequestBody LoginDto loginDto){
         try{
             AuthResponse authResponse= userService.logIn(loginDto);
-            if(authResponse==null){
-                ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("User Already Exists");
+            if(authResponse == null){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid credentials");
             }
             return ResponseEntity.ok(authResponse);
         }
