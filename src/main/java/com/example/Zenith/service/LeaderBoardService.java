@@ -44,11 +44,13 @@ public class LeaderBoardService {
         Long rank = redisTemplate.opsForZSet().reverseRank(LEADERBOARD, username);
 
         // 4. BROADCAST ONLY IF THEY EXIST IN TOP 10K
-        if (rank != null) {
+        if (rank != null ) {  // Only broadcast if top 10 affected
+            // Send notification
             broadcasterService.broadcastScoreUpdate(username, score, rank + 1);
-        } else {
 
-            System.out.println("User " + username + " not in top 10k after trimming.");
+            if(rank<10) {
+                broadcasterService.broadcastFullTop10();
+            }
         }
     }
 
