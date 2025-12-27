@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     @Autowired
     private UserService userService;
-    @Autowired
-    private UserRepo userRepo;
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignupDto signupDto) {
         try {

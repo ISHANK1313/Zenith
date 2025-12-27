@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +25,14 @@ public class LeaderBoardService {
     private UserRepo userRepo;
     @Autowired
     private ScoresRepo scoresRepo;
+    @Autowired
+    private WebsocketBroadcasterService broadcasterService;
     private String LEADERBOARD="leaderboard:global";
+
     public void updateScore(String username, Long score) {
         // be sure that username exists before only then submit score in redis
         Double currentScore = redisTemplate.opsForZSet().score(LEADERBOARD, username);
-        if (currentScore==null||currentScore < score) {
+        if (currentScore==null||currentScore.longValue() < score) {
             redisTemplate.opsForZSet().add(LEADERBOARD, username, score);
         }
         Long totalPlayers = redisTemplate.opsForZSet().zCard(LEADERBOARD);
@@ -36,6 +40,15 @@ public class LeaderBoardService {
             // Remove lowest-ranked players
             long excess = totalPlayers - 10000;
             redisTemplate.opsForZSet().removeRange(LEADERBOARD, 0, excess - 1);
+        }
+        Long rank = redisTemplate.opsForZSet().reverseRank(LEADERBOARD, username);
+
+        // 4. BROADCAST ONLY IF THEY EXIST IN TOP 10K
+        if (rank != null) {
+            broadcasterService.broadcastScoreUpdate(username, score, rank + 1);
+        } else {
+
+            System.out.println("User " + username + " not in top 10k after trimming.");
         }
     }
 

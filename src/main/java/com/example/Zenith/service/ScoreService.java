@@ -22,7 +22,7 @@ public class ScoreService {
 
         Scores scores= new Scores();
         scores.setScore(score);
-        scores.setSubmitted_at(LocalDateTime.now());
+        scores.setSubmittedAt(LocalDateTime.now());
         scores.setUsers(users);
         scoresRepo.save(scores);
         return ;

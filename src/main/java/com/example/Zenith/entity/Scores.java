@@ -16,7 +16,7 @@ public class Scores {
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private Users users;
-    private LocalDateTime submitted_at;
+    private LocalDateTime submittedAt;
 
     public Long getId() {
         return id;
@@ -42,11 +42,11 @@ public class Scores {
         this.users = users;
     }
 
-    public LocalDateTime getSubmitted_at() {
-        return submitted_at;
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
     }
 
-    public void setSubmitted_at(LocalDateTime submitted_at) {
-        this.submitted_at = submitted_at;
+    public void setSubmittedAt(LocalDateTime submittedAt) {
+        this.submittedAt = submittedAt;
     }
 }
