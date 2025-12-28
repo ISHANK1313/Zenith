@@ -11,8 +11,6 @@ import java.util.List;
 public class WebsocketBroadcasterService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-    @Autowired
-    private LeaderBoardService leaderBoardService;
     public void broadcastScoreUpdate(String username,Long score,Long rank){
         LeaderBoardEntryDto dto= new LeaderBoardEntryDto();
         dto.setUsername(username);
@@ -20,9 +18,8 @@ public class WebsocketBroadcasterService {
         dto.setScore(score);
         messagingTemplate.convertAndSend("/topic/leaderboard",dto);
     }
-    public void broadcastFullTop10(){
+    public void broadcastFullTop10(List<LeaderBoardEntryDto> top10){
 
-        List<LeaderBoardEntryDto> top10 = leaderBoardService.getTop10();
         messagingTemplate.convertAndSend("/topic/leaderboard/top10", top10);
     }
 

@@ -49,7 +49,7 @@ public class LeaderBoardService {
             broadcasterService.broadcastScoreUpdate(username, score, rank + 1);
 
             if(rank<10) {
-                broadcasterService.broadcastFullTop10();
+                broadcasterService.broadcastFullTop10(getTop10());
             }
         }
     }
