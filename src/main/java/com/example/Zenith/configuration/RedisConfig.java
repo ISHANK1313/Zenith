@@ -13,8 +13,12 @@ public class RedisConfig {
     @Primary
     public RedisTemplate<String,String> createRedisTemplate(RedisConnectionFactory connectionFactory){
         RedisTemplate<String,String> redisTemplate= new RedisTemplate<>();
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        StringRedisSerializer stringSerializer=new StringRedisSerializer();
+        redisTemplate.setKeySerializer(stringSerializer);
+        redisTemplate.setValueSerializer(stringSerializer);
+        redisTemplate.setHashKeySerializer(stringSerializer);
+        redisTemplate.setHashValueSerializer(stringSerializer);
+
         redisTemplate.setConnectionFactory(connectionFactory);
         return redisTemplate;
     }
