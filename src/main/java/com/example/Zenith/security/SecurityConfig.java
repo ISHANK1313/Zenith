@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -26,8 +27,15 @@ public class SecurityConfig  {
     @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
    SecurityFilterChain security= httpSecurity.authorizeHttpRequests(http->http
-            .requestMatchers("/auth/**").permitAll().anyRequest().authenticated())
+            .requestMatchers("/auth/**").permitAll()
+                   .requestMatchers("/ws/**").permitAll()
+                   .requestMatchers("/topic/**").permitAll()
+                   .requestMatchers("/app/**").permitAll()
+                   .anyRequest().authenticated())
             .csrf(csrf->csrf.disable())
+           .sessionManagement(session -> session
+                   .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+           )
            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     return security;

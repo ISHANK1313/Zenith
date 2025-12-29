@@ -30,68 +30,44 @@ public class LeaderBoardService {
     private String LEADERBOARD="leaderboard:global";
 
     public void updateScore(String username, Long score) {
-        System.out.println("======= UPDATE SCORE START =======");
-        System.out.println("Username: " + username);
-        System.out.println("Score: " + score);
-        System.out.println("LEADERBOARD key: " + LEADERBOARD);
+        // be sure that username exists before only then submit score in redis
+        Double currentScore = redisTemplate.opsForZSet().score(LEADERBOARD, username);
+        if (currentScore==null||currentScore.longValue() < score) {
+            redisTemplate.opsForZSet().add(LEADERBOARD, username, score);
+        }
+        Long totalPlayers = redisTemplate.opsForZSet().zCard(LEADERBOARD);
+        if (totalPlayers != null && totalPlayers > 10000) {
+            // Remove lowest-ranked players
+            long excess = totalPlayers - 10000;
+            redisTemplate.opsForZSet().removeRange(LEADERBOARD, 0, excess - 1);
+        }
+        Long rank = redisTemplate.opsForZSet().reverseRank(LEADERBOARD, username);
 
-        try {
-            Double currentScore = redisTemplate.opsForZSet().score(LEADERBOARD, username);
-            System.out.println("Current Redis score:  " + currentScore);
+        // 4. BROADCAST ONLY IF THEY EXIST IN TOP 10K
+        if (rank != null ) {  // Only broadcast if top 10 affected
+            // Send notification
+            broadcasterService.broadcastScoreUpdate(username, score, rank + 1);
 
-            if (currentScore == null || currentScore. longValue() < score) {
-                System.out.println("Adding to Redis.. .");
-                Boolean added = redisTemplate.opsForZSet().add(LEADERBOARD, username, score);
-                System.out.println("Redis ADD result: " + added);
-
-                // ✅ VERIFY IMMEDIATELY
-                Double verifyScore = redisTemplate.opsForZSet().score(LEADERBOARD, username);
-                System.out.println("Verification - Redis now has: " + verifyScore);
-            } else {
-                System. out.println("Score not higher, skipping Redis update");
+            if(rank<10) {
+                broadcasterService.broadcastFullTop10(getTop10());
             }
-
-            Long totalPlayers = redisTemplate.opsForZSet().zCard(LEADERBOARD);
-            System.out.println("Total players in Redis: " + totalPlayers);
-
-            if (totalPlayers != null && totalPlayers > 10000) {
-                long excess = totalPlayers - 10000;
-                redisTemplate.opsForZSet().removeRange(LEADERBOARD, 0, excess - 1);
-                System.out.println("Trimmed " + excess + " players");
-            }
-
-            Long rank = redisTemplate.opsForZSet().reverseRank(LEADERBOARD, username);
-            System.out.println("User rank:  " + rank);
-
-            if (rank != null) {
-                broadcasterService.broadcastScoreUpdate(username, score, rank + 1);
-                if (rank < 10) {
-                    broadcasterService.broadcastFullTop10(getTop10());
-                }
-            }
-
-            System.out. println("======= UPDATE SCORE END =======");
-
-        } catch (Exception e) {
-            System.err.println("ERROR in updateScore: " + e. getMessage());
-            e.printStackTrace();
         }
     }
 
     public List<LeaderBoardEntryDto> getTop10(){
-         Set<ZSetOperations.TypedTuple<String>> result=redisTemplate
-                 .opsForZSet().reverseRangeWithScores(LEADERBOARD,0,9);
-         List<LeaderBoardEntryDto> leaderBoardEntryDtos= new ArrayList<>();
-         long rank=1;
-         for(ZSetOperations.TypedTuple<String> r:result){
-             LeaderBoardEntryDto dto= new LeaderBoardEntryDto();
-             dto.setScore(r.getScore().longValue());
-             dto.setUsername(r.getValue());
-             dto.setRank(rank);
-             rank++;
-             leaderBoardEntryDtos.add(dto);
-         }
-         return leaderBoardEntryDtos;
+        Set<ZSetOperations.TypedTuple<String>> result=redisTemplate
+                .opsForZSet().reverseRangeWithScores(LEADERBOARD,0,9);
+        List<LeaderBoardEntryDto> leaderBoardEntryDtos= new ArrayList<>();
+        long rank=1;
+        for(ZSetOperations.TypedTuple<String> r:result){
+            LeaderBoardEntryDto dto= new LeaderBoardEntryDto();
+            dto.setScore(r.getScore().longValue());
+            dto.setUsername(r.getValue());
+            dto.setRank(rank);
+            rank++;
+            leaderBoardEntryDtos.add(dto);
+        }
+        return leaderBoardEntryDtos;
     }
 
     public Long getRank(String username) {

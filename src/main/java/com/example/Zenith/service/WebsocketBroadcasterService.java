@@ -3,7 +3,7 @@ package com.example.Zenith.service;
 import com.example.Zenith.dto.LeaderBoardEntryDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.messaging.simp. SimpMessagingTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 
