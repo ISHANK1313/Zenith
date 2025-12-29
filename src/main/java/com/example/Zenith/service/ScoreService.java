@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,11 +37,9 @@ public class ScoreService {
         return true;
     }
     public List<Scores> getAllScoresForUser(Users users){
-        Optional<List<Scores>> optionalScores=scoresRepo.findByUsers(users);
-        if(optionalScores.isEmpty()){
-            return null;
-        }
-        return optionalScores.get();
+        Optional<List<Scores>> optionalScores = scoresRepo.findByUsers(users);
+        return optionalScores.orElse(Collections.emptyList());
+
     }
 
 }
