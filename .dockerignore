@@ -1,0 +1,11 @@
+target/
+.mvn/
+*.log
+.git/
+.gitignore
+README.md
+frontend/
+node_modules/
+*.md
+.env
+.env.local
