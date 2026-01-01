@@ -1,5 +1,6 @@
 package com.example.Zenith;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -7,21 +8,22 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class WebConfig {
+
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    private String allowedOriginsString;
 
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-
-        config.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "*"
-        ));
+        // Parse comma-separated origins
+        List<String> origins = Arrays.asList(allowedOriginsString.split(","));
+        config.setAllowedOrigins(origins);
 
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
