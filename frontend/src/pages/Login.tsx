@@ -29,16 +29,13 @@ export const Login: React.FC = () => {
     try {
       const response = await authApi.login(data);
 
-      // Extract username from identifier (could be email or username)
-      const username = data.identifier.includes('@')
-        ? data.identifier.split('@')[0]
-        : data.identifier;
+      // Use the username from the response, not extracted from email
+      login(response.token, data.identifier, response. username);
 
-      login(response.token, data.identifier, username);
       toast.success('Welcome back!');
       navigate('/dashboard');
-    } catch (error: any) {
-      const errorMessage = error.response?.data || 'Login failed. Please check your credentials.';
+    } catch (error:  any) {
+      const errorMessage = error. response?.data || 'Login failed.  Please check your credentials.';
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);

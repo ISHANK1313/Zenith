@@ -17,6 +17,7 @@ export interface LoginRequest {
 
 export interface AuthResponse {
   token: string;
+  username: string;
 }
 
 // Score types

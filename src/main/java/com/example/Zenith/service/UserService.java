@@ -51,24 +51,24 @@ public class UserService {
     }
 
     public AuthResponse logIn(LoginDto loginDto){
-        Optional<Users> usersOptional =null;
+        Optional<Users> usersOptional = null;
         if(loginDto.getIdentifier().contains("@")){
-            usersOptional=userRepo.findByEmail(loginDto.getIdentifier());
+            usersOptional = userRepo.findByEmail(loginDto.getIdentifier());
         }
         else{
-            usersOptional= userRepo.findByUsername(loginDto.getIdentifier());
+            usersOptional = userRepo.findByUsername(loginDto.getIdentifier());
         }
         if(usersOptional.isEmpty()){
             return null;
         }
-        Users users= usersOptional.get();
-        if(!passwordEncoder.matches(loginDto.getPassword(),users.getPassword())){
+        Users users = usersOptional.get();
+        if(!passwordEncoder.matches(loginDto.getPassword(), users.getPassword())){
             return null;
         }
-        AuthResponse authResponse= new AuthResponse();
-        Map<String,Object> mp=new HashMap<>();
-        authResponse.setToken(jwtUtil.createToken( mp, users.getEmail()));
+        AuthResponse authResponse = new AuthResponse();
+        Map<String,Object> mp = new HashMap<>();
+        authResponse.setToken(jwtUtil. createToken(mp, users.getEmail()));
+        authResponse. setUsername(users. getUsername());
         return authResponse;
-
     }
 }
