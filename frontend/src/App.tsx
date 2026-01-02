@@ -3,10 +3,10 @@ import { useAuthStore } from './store/authStore'
 import { ROUTES } from './utils/constants'
 
 // Import your pages
-import HomePage from './pages/HomePage'
-import SignupPage from './pages/SignupPage'
-import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/DashboardPage'
+import { Landing as HomePage } from './pages/Landing'
+import { Signup as SignupPage } from './pages/Signup'
+import { Login as LoginPage } from './pages/Login'
+import { Dashboard as DashboardPage } from './pages/Dashboard'
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
