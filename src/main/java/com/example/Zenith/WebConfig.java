@@ -13,7 +13,7 @@ import java.util.List;
 @Configuration
 public class WebConfig {
 
-    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173,https://radiant-brioche-04c835.netlify.app/}")
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173,https://shiny-conkies-fd1020.netlify.app}")
     private String allowedOriginsString;
 
     @Bean
