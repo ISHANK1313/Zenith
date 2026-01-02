@@ -6,12 +6,12 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin: 17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/Zenith-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose port
 EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the application WITH prod profile
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]

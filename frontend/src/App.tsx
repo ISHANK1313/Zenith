@@ -13,24 +13,31 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore()
 
   if (!isAuthenticated) {
-    return <Navigate to={ROUTES. LOGIN} replace />
+    return <Navigate to={ROUTES.LOGIN} replace />
   }
 
   return <>{children}</>
 }
 
 // Public Route component (redirect to dashboard if already logged in)
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+const PublicRoute = ({ children }: { children:  React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore()
 
   if (isAuthenticated) {
-    return <Navigate to={ROUTES.DASHBOARD} replace />
+    return <Navigate to={ROUTES. DASHBOARD} replace />
   }
 
   return <>{children}</>
 }
 
 function App() {
+  const initialize = useAuthStore((state) => state.initialize)
+
+  // Initialize auth state from localStorage on app startup
+  useEffect(() => {
+    initialize()
+  }, [initialize])
+
   return (
     <Routes>
       {/* Public Routes */}
@@ -51,7 +58,7 @@ function App() {
         }
       />
       <Route
-        path={ROUTES.LOGIN}
+        path={ROUTES. LOGIN}
         element={
           <PublicRoute>
             <LoginPage />
