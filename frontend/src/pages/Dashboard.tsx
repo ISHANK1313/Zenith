@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { ScoreForm } from '../components/score/ScoreForm';
@@ -46,7 +47,7 @@ export const Dashboard: React.FC = () => {
           <Card color="pink">
             <h3 className="text-sm font-bold mb-2 uppercase">BEST SCORE</h3>
             <p className="text-3xl font-bold">
-              {userScore !== null ? userScore.toLocaleString() : '—'}
+              {userScore != null ? userScore.toLocaleString() : '—'}
             </p>
           </Card>
         </div>

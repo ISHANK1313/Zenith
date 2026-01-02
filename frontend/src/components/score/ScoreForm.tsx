@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import type React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -37,8 +37,9 @@ export const ScoreForm: React.FC<ScoreFormProps> = ({ onSuccess }) => {
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
       if (onSuccess) onSuccess();
     },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data || 'Failed to submit score';
+    onError: (error: unknown) => {
+      const axiosError = error as { response?: { data?: string } };
+      const errorMessage = axiosError.response?.data || 'Failed to submit score';
       toast.error(errorMessage);
     },
   });
