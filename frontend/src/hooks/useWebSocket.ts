@@ -23,10 +23,14 @@ export const useWebSocket = () => {
      // Invalidate queries on any score update
          wsService.onScoreUpdate(() => {
            queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+           queryClient.invalidateQueries({ queryKey: ['userRank'] });
+           queryClient.invalidateQueries({ queryKey: ['userScore'] });
          });
          // Also invalidate on top 10 updates
     wsService.onTop10Update(() => {
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      queryClient.invalidateQueries({ queryKey: ['userRank'] });
+      queryClient.invalidateQueries({ queryKey: ['userScore'] });
     });
 
     return () => {
