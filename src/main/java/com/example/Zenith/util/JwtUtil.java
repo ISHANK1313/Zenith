@@ -19,10 +19,11 @@ public class JwtUtil {
     }
 
     public String createToken(Map<String,Object> mp, String email){
-        return Jwts.builder().setExpiration(new Date(System.currentTimeMillis()+86400000))
-                .setIssuedAt(new Date(System.currentTimeMillis()))
+        return Jwts.builder()
                 .setClaims(mp)
                 .setSubject(email)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+86400000))
                 .signWith(getSigningKey())
                 .compact();
     }

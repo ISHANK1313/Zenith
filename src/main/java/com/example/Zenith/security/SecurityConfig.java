@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,12 +27,14 @@ public class SecurityConfig  {
     }
     @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-   SecurityFilterChain security= httpSecurity.authorizeHttpRequests(http->http
-            .requestMatchers("/auth/**").permitAll()
-                   .requestMatchers("/ws/**").permitAll()
-                   .requestMatchers("/topic/**").permitAll()
-                   .requestMatchers("/app/**").permitAll()
-                   .anyRequest().authenticated())
+        SecurityFilterChain security= httpSecurity
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(http->http
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/topic/**").permitAll()
+                        .requestMatchers("/app/**").permitAll()
+                        .anyRequest().authenticated())
             .csrf(csrf->csrf.disable())
            .sessionManagement(session -> session
                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
