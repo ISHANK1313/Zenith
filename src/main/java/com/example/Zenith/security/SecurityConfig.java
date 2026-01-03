@@ -32,6 +32,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws
                 .authorizeHttpRequests(http->http
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/ws-sockjs/**").permitAll()
                         .requestMatchers("/topic/**").permitAll()
                         .requestMatchers("/app/**").permitAll()
                         .anyRequest().authenticated())
