@@ -20,8 +20,11 @@ export const useWebSocket = () => {
         toast.error('Live updates disconnected');
       }
     );
-
-    // Invalidate queries when top 10 updates
+     // Invalidate queries on any score update
+         wsService.onScoreUpdate(() => {
+           queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+         });
+         // Also invalidate on top 10 updates
     wsService.onTop10Update(() => {
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     });
