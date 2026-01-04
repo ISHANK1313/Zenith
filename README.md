@@ -14,7 +14,7 @@
 
 🌐 **[Live Demo](https://beautiful-mochi-3592a9.netlify.app/)** | 📡 **[API](https://zenith-v5nteqrs.b4a.run)**
 
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [API Docs](#-api-documentation) • [Screenshots](#-screenshots)
+[Features](#-features) • [Architecture](#-architecture) • [Database](#-database-design) • [API Docs](#-api-documentation) • [Performance](#-performance-optimization)
 
 </div>
 
@@ -48,38 +48,229 @@
 
 ---
 
-## 🛠️ Tech Stack
+## 🏗️ Architecture
 
-### Backend (Spring Boot REST API)
-```
-Spring Boot 3.5      →  Core framework
-Spring Security      →  JWT authentication
-Spring Data Redis    →  High-speed leaderboard caching
-Spring Data JPA      →  PostgreSQL ORM
-WebSocket            →  Real-time event broadcasting
-Docker               →  Containerization
-Back4App             →  Container Deployment
-```
+### Application Flow
+```mermaid
+graph TD
+    User[User / Browser] -->|HTTP Request| LoadBalancer[Back4App Load Balancer]
+    LoadBalancer -->|Traffic| SpringBoot[Spring Boot Backend]
 
-### Frontend (React SPA)
-```
-React 19             →  UI Library
-Vite                 →  Build tool
-Tailwind CSS         →  Styling
-Zustand              →  State management
-React Query          →  Data fetching
-Netlify              →  Hosting
+    subgraph Data Layer
+        SpringBoot -->|Read/Write Top 10k| Redis[(Redis Cache)]
+        SpringBoot -->|Persist Data| Postgres[(PostgreSQL DB)]
+    end
+
+    subgraph Real-Time
+        SpringBoot -->|Push Updates| WebSocket[WebSocket / STOMP]
+        WebSocket -->|Broadcast| User
+    end
 ```
 
-> **Note:** The frontend was purely "vibe-coded" with **Claude 4.5**.
+### 📁 Project Structure
+```
+Zenith/
+├── src/main/java/com/example/Zenith/
+│   ├── controller/          # REST API Controllers
+│   ├── service/             # Business Logic (Leaderboard, Score, User)
+│   ├── repository/          # Data Access Layer (JPA)
+│   ├── entity/              # Database Entities (Users, Scores)
+│   ├── dto/                 # Data Transfer Objects
+│   ├── config/              # Redis, WebSocket, Security Config
+│   └── util/                # JWT Utilities
+├── frontend/                # React Application
+│   ├── src/
+│   │   ├── components/      # Reusable UI Components
+│   │   ├── pages/           # Application Pages
+│   │   ├── hooks/           # Custom React Hooks
+│   │   └── api/             # API Client Functions
+│   └── public/              # Static Assets
+└── README.md                # Project Documentation
+```
 
-### Infrastructure
+---
+
+## 📊 Database Design
+
+The application uses a relational database (PostgreSQL) for persistence and an in-memory data store (Redis) for caching the leaderboard.
+
+### Schema (PostgreSQL)
+
+**1. Users Table**
+Stores user credentials and profile information.
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | BIGINT | PK, Auto Increment | Unique user identifier |
+| `username` | VARCHAR | UNIQUE, NOT NULL | Public display name |
+| `email` | VARCHAR | UNIQUE, NOT NULL | User email address |
+| `password` | VARCHAR | NOT NULL | BCrypt hashed password |
+
+**2. Scores Table**
+Stores historical score submissions.
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | BIGINT | PK, Auto Increment | Unique score identifier |
+| `score` | BIGINT | NOT NULL | The submitted score value |
+| `submitted_at`| TIMESTAMP | | Time of submission |
+| `user_id` | BIGINT | FK -> Users.id | Reference to the user |
+
+### Redis Data Structure
+- **Key**: `leaderboard:global`
+- **Type**: Sorted Set (ZSET)
+- **Member**: `username`
+- **Score**: `score` value
+- **Logic**: Stores only the top 10,000 players. Lower ranked players are removed from Redis to save memory, but their data remains in PostgreSQL.
+
+---
+
+## 📡 API Documentation
+
+### 🔹 Authentication
+
+#### 1. Sign Up
+**Endpoint:** `POST /auth/signup`
+**Description:** Register a new user.
+**Validation:** Username (alphanumeric), Password (min 6 chars), Email (valid format).
+
+**Request Body:**
+```json
+{
+  "userName": "climber123",
+  "email": "climber@example.com",
+  "password": "password123"
+}
 ```
-PostgreSQL (Supabase)  →  Primary database
-Redis (RedisLabs)      →  Leaderboard cache
-Back4App               →  Backend hosting
-Netlify                →  Frontend hosting
+
+**Response:** `201 Created`
 ```
+"User created please login"
+```
+**Error Responses:**
+- `400 Bad Request`: "User already exists" or validation error.
+
+#### 2. Log In
+**Endpoint:** `POST /auth/login`
+**Description:** Authenticate user and receive a JWT token.
+
+**Request Body:**
+```json
+{
+  "email": "climber@example.com",
+  "password": "password123"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsIn...",
+  "email": "climber@example.com",
+  "username": "climber123"
+}
+```
+
+---
+
+### 🔹 Leaderboard
+
+#### 1. Get Top 10
+**Endpoint:** `GET /leaderboard/top10`
+**Description:** Retrieves the top 10 players from Redis ZSET.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "username": "trigon",
+    "score": 4000,
+    "rank": 1
+  },
+  {
+    "username": "random",
+    "score": 3000,
+    "rank": 2
+  }
+]
+```
+
+#### 2. Get User Rank
+**Endpoint:** `GET /leaderboard/rank`
+**Query Param:** `username` (String)
+**Description:** Checks the Redis Top 10k leaderboard for the user's rank.
+
+**Response:** `200 OK`
+```json
+4
+```
+*Note: If user is outside top 10k, returns message "User not in top 10,000. Keep playing!"*
+
+#### 3. Get User Score
+**Endpoint:** `GET /leaderboard/score`
+**Query Param:** `username` (String)
+**Description:** Retrieves the user's best score. Checks Redis first; falls back to Postgres if not found.
+
+**Response:** `200 OK`
+```json
+4000
+```
+
+---
+
+### 🔹 Scores
+
+#### 1. Submit Score
+**Endpoint:** `POST /score/addscore`
+**Headers:** `Authorization: Bearer <token>`
+**Description:** Submits a new score. Updates Postgres and, if eligible, the Redis Leaderboard. Triggers WebSocket broadcast.
+
+**Request Body:**
+```json
+{
+  "score": 5000
+}
+```
+
+**Response:** `201 Created`
+```
+"score added"
+```
+
+#### 2. Get Score History
+**Endpoint:** `GET /score/getscores`
+**Headers:** `Authorization: Bearer <token>`
+**Description:** Retrieves full score history for the authenticated user from PostgreSQL.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "score": 4000,
+    "submittedAt": "2025-01-04T10:00:00"
+  },
+  {
+    "id": 2,
+    "score": 3500,
+    "submittedAt": "2025-01-03T09:00:00"
+  }
+]
+```
+
+---
+
+## ⚡ Performance Optimization
+
+### 1️⃣ Current Features
+*   **Redis Caching (Top 10k)**: The leaderboard logic is optimized to keep only the top 10,000 players in the Redis In-Memory Sorted Set. This ensures that the most frequently accessed data (the leaderboard) is retrieved with **O(log N)** time complexity.
+*   **Postgres Fallback**: Users outside the top 10k are not stored in Redis to save memory. Their data is securely persisted in PostgreSQL, ensuring scalability without exploding memory costs.
+*   **Lazy Loading**: The `Scores` entity uses `FetchType.LAZY` for the User relationship to minimize database load when fetching score history.
+*   **WebSockets**: Instead of polling the server for leaderboard updates (which is resource-intensive), the server pushes updates to clients in real-time.
+
+### 2️⃣ Future Improvements
+*   **Sharding**: As the user base grows beyond millions, the Redis instance can be sharded based on score ranges or user regions to distribute the load.
+*   **Read Replicas**: Implementing PostgreSQL read replicas would offload read operations (like fetching history) from the primary write database.
+*   **Rate Limiting**: Implementing API rate limiting (e.g., Bucket4j) to prevent abuse of the score submission endpoint.
+*   **CDN Integration**: Serving static assets (frontend) via a global CDN for faster load times.
 
 ---
 
@@ -108,142 +299,6 @@ Netlify                →  Frontend hosting
 
 ---
 
-## 📡 API Documentation
-
-### Base URL
-```
-https://zenith-v5nteqrs.b4a.run
-```
-
----
-
-### 🔹 Authentication
-
-#### 1. Sign Up
-**Endpoint:** `POST /auth/signup`
-
-**Request:**
-```json
-{
-  "username": "climber123",
-  "email": "climber@example.com",
-  "password": "password123"
-}
-```
-
-**Response:** `201 Created`
-```
-"User created please login"
-```
-
-#### 2. Log In
-**Endpoint:** `POST /auth/login`
-
-**Request:**
-```json
-{
-  "email": "climber@example.com",
-  "password": "password123"
-}
-```
-
-**Response:** `200 OK`
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsIn...",
-  "email": "climber@example.com",
-  "username": "climber123"
-}
-```
-
----
-
-### 🔹 Leaderboard & Scores
-
-#### 1. Get Top 10
-Retrieves the top 10 players from Redis.
-
-**Endpoint:** `GET /leaderboard/top10`
-
-**Response:** `200 OK`
-```json
-[
-  {
-    "username": "trigon",
-    "score": 4000,
-    "rank": 1
-  },
-  {
-    "username": "random",
-    "score": 3000,
-    "rank": 2
-  }
-]
-```
-
-#### 2. Get User Rank
-Checks the Redis Top 10k leaderboard for the user's rank.
-
-**Endpoint:** `GET /leaderboard/rank?username={username}`
-
-**Response:** `200 OK`
-```json
-4
-```
-*Returns 200 with message "User not in top 10,000" if outside top 10k.*
-
-#### 3. Get User Score
-Retrieves the user's best score. Fallback to PostgreSQL if not in Redis cache.
-
-**Endpoint:** `GET /leaderboard/score?username={username}`
-
-**Response:** `200 OK`
-```json
-4000
-```
-
-#### 4. Submit Score
-Submits a new score. Updates Postgres and, if high enough, the Redis Leaderboard.
-
-**Endpoint:** `POST /score/addscore`
-**Headers:** `Authorization: Bearer <token>`
-
-**Request:**
-```json
-{
-  "score": 5000
-}
-```
-
-**Response:** `201 Created`
-```
-"score added"
-```
-
-#### 5. Get Score History
-Retrieves all score submissions for the authenticated user from Postgres.
-
-**Endpoint:** `GET /score/getscores`
-**Headers:** `Authorization: Bearer <token>`
-
-**Response:** `200 OK`
-```json
-[
-  {
-    "id": 1,
-    "score": 4000,
-    "submittedAt": "2025-01-04T10:00:00"
-  },
-  {
-    "id": 2,
-    "score": 3500,
-    "submittedAt": "2025-01-03T09:00:00"
-  }
-]
-```
-
----
-
 ## 🎥 Demo
 
 <div align="center">
@@ -251,47 +306,6 @@ Retrieves all score submissions for the authenticated user from Postgres.
   <!-- Replace with actual demo link or embed -->
   <p><em>Coming Soon...</em></p>
 </div>
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Java 17+
-- Node.js 18+
-- PostgreSQL
-- Redis
-
-### Backend Setup
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/your-username/zenith.git
-   cd zenith
-   ```
-
-2. **Configure Database**
-   Update `src/main/resources/application.properties` with your Postgres and Redis credentials.
-
-3. **Run Application**
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-
-### Frontend Setup
-1. **Navigate to frontend**
-   ```bash
-   cd frontend
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Run Dev Server**
-   ```bash
-   npm run dev
-   ```
 
 ---
 
