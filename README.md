@@ -12,6 +12,8 @@
 **Compete • Climb • Conquer**
 **Real-time leaderboard. Top 10,000 players. Only the best survive.**
 
+**🔗 Project URL:** https://roadmap.sh/projects/realtime-leaderboard-system
+
 🌐 **[Live Demo](https://beautiful-mochi-3592a9.netlify.app/)** | 📡 **[API](https://zenith-v5nteqrs.b4a.run)**
 
 [Features](#-features) • [Architecture](#-architecture) • [Tech Stack](#-tech-stack) • [Database](#-database-design) • [API Docs](#-api-documentation) • [Performance](#-performance-optimization)
@@ -449,3 +451,4 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 
 
 </div>
+
