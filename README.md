@@ -70,22 +70,68 @@ graph TD
 ### 📁 Project Structure
 ```
 Zenith/
-├── src/main/java/com/example/Zenith/
-│   ├── controller/          # REST API Controllers
-│   ├── service/             # Business Logic (Leaderboard, Score, User)
-│   ├── repository/          # Data Access Layer (JPA)
-│   ├── entity/              # Database Entities (Users, Scores)
-│   ├── dto/                 # Data Transfer Objects
-│   ├── config/              # Redis, WebSocket, Security Config
-│   └── util/                # JWT Utilities
-├── frontend/                # React Application
+├── backend/ (src/main/java/com/example/Zenith/)
+│   ├── configuration/
+│   │   ├── RedisConfig.java            # Redis caching setup
+│   │   └── WebSocketConfig.java        # STOMP/WebSocket config
+│   ├── controller/
+│   │   ├── AuthController.java         # Login/Signup endpoints
+│   │   ├── LeaderBoardController.java  # Rank & Top 10 endpoints
+│   │   └── ScoreController.java        # Score submission endpoints
+│   ├── dto/
+│   │   ├── AuthResponse.java           # JWT response payload
+│   │   ├── LeaderBoardEntryDto.java    # Rank/Score data transfer
+│   │   ├── LoginDto.java               # Login request shape
+│   │   ├── ScoreSubmitDto.java         # Score submission shape
+│   │   └── SignupDto.java              # Registration request shape
+│   ├── entity/
+│   │   ├── Scores.java                 # Score history entity
+│   │   └── Users.java                  # User account entity
+│   ├── exception/
+│   │   ├── GlobalExceptionHandler.java # Centralized error handling
+│   │   └── UserBelow10KException.java  # Custom logic exception
+│   ├── repository/
+│   │   ├── ScoresRepo.java             # JPA repo for scores
+│   │   └── UserRepo.java               # JPA repo for users
+│   ├── security/
+│   │   └── SecurityConfig.java         # Spring Security chain
+│   ├── service/
+│   │   ├── LeaderBoardService.java     # Redis leaderboard logic
+│   │   ├── ScoreService.java           # Score persistence logic
+│   │   ├── UserService.java            # Auth business logic
+│   │   └── WebsocketBroadcaster.java   # Real-time push service
+│   └── util/
+│       ├── JwtRequestFilter.java       # JWT auth filter
+│       └── JwtUtil.java                # Token generation/validation
+│
+├── frontend/ (React + Vite)
 │   ├── src/
-│   │   ├── components/      # Reusable UI Components
-│   │   ├── pages/           # Application Pages
-│   │   ├── hooks/           # Custom React Hooks
-│   │   └── api/             # API Client Functions
-│   └── public/              # Static Assets
-└── README.md                # Project Documentation
+│   │   ├── api/
+│   │   │   ├── auth.api.ts             # Auth endpoints
+│   │   │   ├── leaderboard.api.ts      # Leaderboard fetchers
+│   │   │   ├── score.api.ts            # Score submission
+│   │   │   └── websocket.ts            # Live socket connection
+│   │   ├── components/
+│   │   │   ├── common/                 # Shared UI (Button, Card, Input)
+│   │   │   ├── layout/                 # Header & Main Layout
+│   │   │   ├── leaderboard/            # Tables & Rank Badges
+│   │   │   └── score/                  # Live Feed & History
+│   │   ├── hooks/
+│   │   │   ├── useAuth.ts              # Auth state logic
+│   │   │   ├── useLeaderboard.ts       # Rank fetching logic
+│   │   │   └── useWebSocket.ts         # Socket subscription hook
+│   │   ├── pages/
+│   │   │   ├── Dashboard.tsx           # Main user hub
+│   │   │   ├── Landing.tsx             # Public home page
+│   │   │   ├── Login.tsx               # Sign in page
+│   │   │   └── Signup.tsx              # Registration page
+│   │   ├── store/
+│   │   │   └── authStore.ts            # Zustand auth store
+│   │   └── utils/
+│   │       └── validation.ts           # Form validation rules
+│   └── index.html
+│
+└── README.md
 ```
 
 ---
