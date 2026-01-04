@@ -361,19 +361,19 @@ Stores historical score submissions.
 
 ### 🏠 Landing Page
 
-![Landing Page](./screenshots/landing.png)
+![Landing Page](./landing.png)
 *Join the competition and reach the Zenith*
 
 ### 🔐 Authentication
 
 | Login | Signup |
 |:---:|:---:|
-| ![Login Page](./screenshots/login.png) | ![Signup Page](./screenshots/signup.png) |
+| ![Login Page](./login.png) | ![Signup Page](./signup.png) |
 | *Welcome back, climber* | *Start your journey* |
 
 ### 📊 Dashboard & Leaderboard
 
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./dashboard.png)
 *Live rank, score submission, and history*
 
 </div>
@@ -384,7 +384,7 @@ Stores historical score submissions.
 
 <div align="center">
   <h3>Watch Zenith in Action</h3>
-  [![Watch the demo](https://drive.google.com/file/d/1vLtkGeibCyXbsBLwtnjSs8QQx9zMdAkz/view?usp=drivesdk)](https://drive.google.com/file/d/1vLtkGeibCyXbsBLwtnjSs8QQx9zMdAkz/view?usp=drivesdk)
+  [![Watch the demo](https://drive.google.com/file/d/1vLtkGeibCyXbsBLwtnjSs8QQx9zMdAkz/view?usp=drivesdk)]
 </div>
 
 ---
@@ -446,5 +446,6 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 **Built with Spring Boot & React • Frontend Vibe-Coded by Claude 4.5**
 
 [⬆ Back to Top](#-zenith---reach-the-peak)
+
 
 </div>
