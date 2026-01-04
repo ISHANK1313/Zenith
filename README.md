@@ -1,0 +1,450 @@
+# ⚡ Zenith - Reach the Peak
+
+<div align="center">
+
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?style=for-the-badge&logo=spring&logoColor=white)
+![Java](https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=openjdk&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Live-success?style=for-the-badge)
+
+**Compete • Climb • Conquer**
+**Real-time leaderboard. Top 10,000 players. Only the best survive.**
+
+🌐 **[Live Demo](https://beautiful-mochi-3592a9.netlify.app/)** | 📡 **[API](https://zenith-v5nteqrs.b4a.run)**
+
+[Features](#-features) • [Architecture](#-architecture) • [Tech Stack](#-tech-stack) • [Database](#-database-design) • [API Docs](#-api-documentation) • [Performance](#-performance-optimization)
+
+</div>
+
+---
+
+## 🚀 Live Application
+
+**🎯 Try it now:** [https://beautiful-mochi-3592a9.netlify.app/](https://beautiful-mochi-3592a9.netlify.app/)
+
+- ⚡ **Real-Time Leaderboard** - Live rank updates powered by Redis and WebSockets.
+- 🏆 **Top 10k Elite** - Highly optimized Redis Sorted Sets manage the top 10,000 players for ultra-fast retrieval.
+- 📊 **Score History** - Persistent score tracking backed by PostgreSQL.
+- 🔒 **Secure Authentication** - JWT-based stateless authentication.
+- 🎨 **Modern & Responsive UI** - A sleek, fast, and accessible user interface built with the latest React 19 features.
+
+---
+
+## ✨ Features
+
+### 🎯 Core Capabilities
+- **High-Performance Leaderboard**: Ranks are calculated in real-time with sub-millisecond latency using Redis Sorted Sets.
+- **Dual-Layer Storage Architecture**:
+    - **Hot Data**: Top 10,000 players cached in Redis for instant access.
+    - **Cold Data**: Full user history and lower ranks securely persisted in PostgreSQL.
+- **Real-Time Event Broadcasting**: WebSocket (STOMP) integration pushes live score updates to all connected clients instantly.
+- **Secure Authentication System**: Stateless JWT (JSON Web Token) implementation with BCrypt password hashing for robust security.
+- **Comprehensive Score Tracking**: Maintains a complete history of every submission, not just the high score.
+- **Global Error Handling**: Centralized exception management ensures consistent and informative error responses.
+- **Validation Pipeline**: Strict input validation using Jakarta Validation API ensures data integrity before processing.
+
+### 💻 User Experience
+- **Seamless Onboarding**: Quick and secure Signup/Login flow.
+- **Interactive Dashboard**: Personalized view showing current rank, best score, and recent activity.
+- **Live Competitor Feed**: Watch the competition unfold with a real-time ticker of incoming scores.
+- **Responsive Design**: Fully optimized for desktop, tablet, and mobile devices.
+
+---
+
+## 🏗️ Architecture
+
+### Application Flow
+```mermaid
+graph TD
+    User[User / Browser] -->|HTTP Request| LoadBalancer[Back4App Load Balancer]
+    LoadBalancer -->|Traffic| SpringBoot[Spring Boot Backend]
+
+    subgraph Data Layer
+        SpringBoot -->|Read/Write Top 10k| Redis[(Redis Cache)]
+        SpringBoot -->|Persist Data| Postgres[(PostgreSQL DB)]
+    end
+
+    subgraph Real-Time
+        SpringBoot -->|Push Updates| WebSocket[WebSocket / STOMP]
+        WebSocket -->|Broadcast| User
+    end
+```
+
+### 📁 Project Structure
+```
+Zenith/
+├── backend/ (src/main/java/com/example/Zenith/)
+│   ├── configuration/
+│   │   ├── RedisConfig.java            # Redis caching setup
+│   │   └── WebSocketConfig.java        # STOMP/WebSocket config
+│   ├── controller/
+│   │   ├── AuthController.java         # Login/Signup endpoints
+│   │   ├── LeaderBoardController.java  # Rank & Top 10 endpoints
+│   │   └── ScoreController.java        # Score submission endpoints
+│   ├── dto/
+│   │   ├── AuthResponse.java           # JWT response payload
+│   │   ├── LeaderBoardEntryDto.java    # Rank/Score data transfer
+│   │   ├── LoginDto.java               # Login request shape
+│   │   ├── ScoreSubmitDto.java         # Score submission shape
+│   │   └── SignupDto.java              # Registration request shape
+│   ├── entity/
+│   │   ├── Scores.java                 # Score history entity
+│   │   └── Users.java                  # User account entity
+│   ├── exception/
+│   │   ├── GlobalExceptionHandler.java # Centralized error handling
+│   │   └── UserBelow10KException.java  # Custom logic exception
+│   ├── repository/
+│   │   ├── ScoresRepo.java             # JPA repo for scores
+│   │   └── UserRepo.java               # JPA repo for users
+│   ├── security/
+│   │   └── SecurityConfig.java         # Spring Security chain
+│   ├── service/
+│   │   ├── LeaderBoardService.java     # Redis leaderboard logic
+│   │   ├── ScoreService.java           # Score persistence logic
+│   │   ├── UserService.java            # Auth business logic
+│   │   └── WebsocketBroadcaster.java   # Real-time push service
+│   └── util/
+│       ├── JwtRequestFilter.java       # JWT auth filter
+│       └── JwtUtil.java                # Token generation/validation
+│
+├── frontend/ (React + Vite)
+│   ├── src/
+│   │   ├── api/
+│   │   │   ├── auth.api.ts             # Auth endpoints
+│   │   │   ├── leaderboard.api.ts      # Leaderboard fetchers
+│   │   │   ├── score.api.ts            # Score submission
+│   │   │   └── websocket.ts            # Live socket connection
+│   │   ├── components/
+│   │   │   ├── common/                 # Shared UI (Button, Card, Input)
+│   │   │   ├── layout/                 # Header & Main Layout
+│   │   │   ├── leaderboard/            # Tables & Rank Badges
+│   │   │   └── score/                  # Live Feed & History
+│   │   ├── hooks/
+│   │   │   ├── useAuth.ts              # Auth state logic
+│   │   │   ├── useLeaderboard.ts       # Rank fetching logic
+│   │   │   └── useWebSocket.ts         # Socket subscription hook
+│   │   ├── pages/
+│   │   │   ├── Dashboard.tsx           # Main user hub
+│   │   │   ├── Landing.tsx             # Public home page
+│   │   │   ├── Login.tsx               # Sign in page
+│   │   │   └── Signup.tsx              # Registration page
+│   │   ├── store/
+│   │   │   └── authStore.ts            # Zustand auth store
+│   │   └── utils/
+│   │       └── validation.ts           # Form validation rules
+│   └── index.html
+│
+└── README.md
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### 🔙 Backend
+- **Spring Boot 3.5**: Robust, production-grade framework for building Java applications.
+- **Java 17**: LTS version ensuring stability and modern language features.
+- **Spring Security**: Comprehensive security framework handling JWT authentication and authorization.
+- **Spring Data JPA**: Abstraction over Hibernate for seamless PostgreSQL interaction.
+- **Spring Data Redis**: High-level abstraction for Redis operations and caching.
+- **Spring WebSocket**: Enables real-time, bi-directional communication (STOMP protocol).
+
+### 🎨 Frontend
+- **React 19**: The latest version of the library for building user interfaces.
+- **Vite**: Next-generation frontend tooling for ultra-fast builds.
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI development.
+- **Zustand**: Small, fast, and scalable bearbones state-management solution.
+- **React Query**: Powerful asynchronous state management for server-state synchronization.
+
+> **Note:** Frontend → Vibe-coded with Claude Sonnet 4.5. 
+
+### 🗄️ Database
+- **PostgreSQL**: Primary relational database hosted on Supabase.
+- **Redis**: In-memory data structure store used as a database, cache, and message broker, hosted on RedisLabs.
+
+### ☁️ Deployment
+- **Back4App**: Container platform hosting the Spring Boot Backend (Dockerized).
+- **Netlify**: Global CDN and hosting platform for the React Frontend.
+- **Docker**: Used for containerizing the application for consistent deployment environments.
+
+---
+
+## 📊 Database Design
+
+The application uses a relational database (PostgreSQL) for persistence and an in-memory data store (Redis) for caching the leaderboard.
+
+### Schema (PostgreSQL)
+
+**1. Users Table**
+Stores user credentials and profile information.
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | BIGINT | PK, Auto Increment | Unique user identifier |
+| `username` | VARCHAR | UNIQUE, NOT NULL | Public display name |
+| `email` | VARCHAR | UNIQUE, NOT NULL | User email address |
+| `password` | VARCHAR | NOT NULL | BCrypt hashed password |
+
+**2. Scores Table**
+Stores historical score submissions.
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | BIGINT | PK, Auto Increment | Unique score identifier |
+| `score` | BIGINT | NOT NULL | The submitted score value |
+| `submitted_at`| TIMESTAMP | | Time of submission |
+| `user_id` | BIGINT | FK -> Users.id | Reference to the user |
+
+### Redis Data Structure
+- **Key**: `leaderboard:global`
+- **Type**: Sorted Set (ZSET)
+- **Member**: `username`
+- **Score**: `score` value
+- **Logic**: Stores only the top 10,000 players. Lower ranked players are removed from Redis to save memory, but their data remains in PostgreSQL.
+
+---
+
+## 📡 API Documentation
+
+### 🔹 Authentication
+
+#### 1. Sign Up
+**Endpoint:** `POST /auth/signup`
+**Description:** Register a new user.
+**Validation:** Username (alphanumeric), Password (min 6 chars), Email (valid format).
+
+**Request Body:**
+```json
+{
+  "userName": "climber123",
+  "email": "climber@example.com",
+  "password": "password123"
+}
+```
+
+**Response:** `201 Created`
+```
+"User created please login"
+```
+**Error Responses:**
+- `400 Bad Request`: "User already exists" or validation error.
+
+#### 2. Log In
+**Endpoint:** `POST /auth/login`
+**Description:** Authenticate user and receive a JWT token.
+
+**Request Body:**
+```json
+{
+  "email": "climber@example.com",
+  "password": "password123"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsIn...",
+  "email": "climber@example.com",
+  "username": "climber123"
+}
+```
+
+---
+
+### 🔹 Leaderboard
+
+#### 1. Get Top 10
+**Endpoint:** `GET /leaderboard/top10`
+**Description:** Retrieves the top 10 players from Redis ZSET.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "username": "trigon",
+    "score": 4000,
+    "rank": 1
+  },
+  {
+    "username": "random",
+    "score": 3000,
+    "rank": 2
+  }
+]
+```
+
+#### 2. Get User Rank
+**Endpoint:** `GET /leaderboard/rank`
+**Query Param:** `username` (String)
+**Description:** Checks the Redis Top 10k leaderboard for the user's rank.
+
+**Response:** `200 OK`
+```json
+4
+```
+*Note: If user is outside top 10k, returns message "User not in top 10,000. Keep playing!"*
+
+#### 3. Get User Score
+**Endpoint:** `GET /leaderboard/score`
+**Query Param:** `username` (String)
+**Description:** Retrieves the user's best score. Checks Redis first; falls back to Postgres if not found.
+
+**Response:** `200 OK`
+```json
+4000
+```
+
+---
+
+### 🔹 Scores
+
+#### 1. Submit Score
+**Endpoint:** `POST /score/addscore`
+**Headers:** `Authorization: Bearer <token>`
+**Description:** Submits a new score. Updates Postgres and, if eligible, the Redis Leaderboard. Triggers WebSocket broadcast.
+
+**Request Body:**
+```json
+{
+  "score": 5000
+}
+```
+
+**Response:** `201 Created`
+```
+"score added"
+```
+
+#### 2. Get Score History
+**Endpoint:** `GET /score/getscores`
+**Headers:** `Authorization: Bearer <token>`
+**Description:** Retrieves full score history for the authenticated user from PostgreSQL.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "score": 4000,
+    "submittedAt": "2025-01-04T10:00:00"
+  },
+  {
+    "id": 2,
+    "score": 3500,
+    "submittedAt": "2025-01-03T09:00:00"
+  }
+]
+```
+
+---
+
+## ⚡ Performance Optimization
+
+### 1️⃣ Current Features
+*   **Redis Caching (Top 10k)**: The leaderboard logic is optimized to keep only the top 10,000 players in the Redis In-Memory Sorted Set. This ensures that the most frequently accessed data (the leaderboard) is retrieved with **O(log N)** time complexity.
+*   **Postgres Fallback**: Users outside the top 10k are not stored in Redis to save memory. Their data is securely persisted in PostgreSQL, ensuring scalability without exploding memory costs.
+*   **Lazy Loading**: The `Scores` entity uses `FetchType.LAZY` for the User relationship to minimize database load when fetching score history.
+*   **WebSockets**: Instead of polling the server for leaderboard updates (which is resource-intensive), the server pushes updates to clients in real-time.
+
+### 2️⃣ Future Improvements
+*   **Sharding**: As the user base grows beyond millions, the Redis instance can be sharded based on score ranges or user regions to distribute the load.
+*   **Read Replicas**: Implementing PostgreSQL read replicas would offload read operations (like fetching history) from the primary write database.
+*   **Rate Limiting**: Implementing API rate limiting (e.g., Bucket4j) to prevent abuse of the score submission endpoint.
+*   **CDN Integration**: Serving static assets (frontend) via a global CDN for faster load times.
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+
+### 🏠 Landing Page
+
+![Landing Page](./screenshots/landing.png)
+*Join the competition and reach the Zenith*
+
+### 🔐 Authentication
+
+| Login | Signup |
+|:---:|:---:|
+| ![Login Page](./screenshots/login.png) | ![Signup Page](./screenshots/signup.png) |
+| *Welcome back, climber* | *Start your journey* |
+
+### 📊 Dashboard & Leaderboard
+
+![Dashboard](./screenshots/dashboard.png)
+*Live rank, score submission, and history*
+
+</div>
+
+---
+
+## 🎥 Demo
+
+<div align="center">
+  <h3>Watch Zenith in Action</h3>
+  [![Watch the demo](https://drive.google.com/file/d/1vLtkGeibCyXbsBLwtnjSs8QQx9zMdAkz/view?usp=drivesdk)](https://drive.google.com/file/d/1vLtkGeibCyXbsBLwtnjSs8QQx9zMdAkz/view?usp=drivesdk)
+</div>
+
+---
+
+## 🚀 Future Roadmap
+
+Here are some exciting features we are planning to add to Zenith:
+
+- **🌍 Global Chat**: Real-time chat for competitors to taunt or encourage each other.
+- **🛡️ Clans & Guilds**: Team up with friends and compete for clan rankings.
+- **🏆 Weekly Tournaments**: Automated weekly resets with special badges for top players.
+- **👤 Avatars & Customization**: Unlockable profile pictures and themes based on your rank.
+- **📱 Mobile App**: Native mobile experience for climbing on the go.
+
+---
+
+## 📚 Learning Resources
+
+Want to build something similar? Check out these resources:
+
+- **Spring Boot**: [Official Documentation](https://spring.io/projects/spring-boot)
+- **React**: [React.dev](https://react.dev/)
+- **Redis**: [Redis Crash Course](https://redis.io/docs/about/)
+- **WebSockets**: [Spring WebSocket Guide](https://spring.io/guides/gs/messaging-stomp-websocket/)
+- **PostgreSQL**: [PostgreSQL Tutorial](https://www.postgresqltutorial.com/)
+
+---
+
+## 🤝 Contribution
+
+Contributions are welcome! Here's how you can help:
+
+1.  **Fork the Project**: Create your own copy of the repository.
+2.  **Create a Branch**: `git checkout -b feature/AmazingFeature`
+3.  **Commit Your Changes**: `git commit -m 'Add some AmazingFeature'`
+4.  **Push to the Branch**: `git push origin feature/AmazingFeature`
+5.  **Open a Pull Request**: We'll review your changes and merge them!
+
+---
+
+## 📞 Contact & Support
+
+- **Issues**: [GitHub Issues](https://github.com/ISHANK1313/zenith/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ISHANK1313/zenith/discussions)
+- **Email**: ishankp3@gmail.com
+
+---
+
+## 📝 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+
+### ⭐ Star this repo if you found it cool!
+
+**Built with Spring Boot & React • Frontend Vibe-Coded by Claude 4.5**
+
+[⬆ Back to Top](#-zenith---reach-the-peak)
+
+</div>
