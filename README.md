@@ -32,6 +32,16 @@
 
 ---
 
+## 🏔️ About The Project
+
+**Zenith is more than just a leaderboard—it's a high-performance arena.**
+
+Born from the need for speed, Zenith handles the competition where others fail. With a dual-layer architecture, it processes rapid score submissions in real-time, instantly updating ranks for the elite top 10,000 players using Redis, while securely archiving every triumph in PostgreSQL.
+
+Whether you're fighting for the #1 spot or tracking your personal growth, Zenith provides the infrastructure to support your climb. **No lag. No delay. Just pure competition.**
+
+---
+
 ## ✨ Features
 
 ### 🎯 Core Capabilities
