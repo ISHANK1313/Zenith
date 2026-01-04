@@ -309,6 +309,56 @@ Stores historical score submissions.
 
 ---
 
+## 🚀 Future Roadmap
+
+Here are some exciting features we are planning to add to Zenith:
+
+- **🌍 Global Chat**: Real-time chat for competitors to taunt or encourage each other.
+- **🛡️ Clans & Guilds**: Team up with friends and compete for clan rankings.
+- **🏆 Weekly Tournaments**: Automated weekly resets with special badges for top players.
+- **👤 Avatars & Customization**: Unlockable profile pictures and themes based on your rank.
+- **📱 Mobile App**: Native mobile experience for climbing on the go.
+
+---
+
+## 📚 Learning Resources
+
+Want to build something similar? Check out these resources:
+
+- **Spring Boot**: [Official Documentation](https://spring.io/projects/spring-boot)
+- **React**: [React.dev](https://react.dev/)
+- **Redis**: [Redis Crash Course](https://redis.io/docs/about/)
+- **WebSockets**: [Spring WebSocket Guide](https://spring.io/guides/gs/messaging-stomp-websocket/)
+- **PostgreSQL**: [PostgreSQL Tutorial](https://www.postgresqltutorial.com/)
+
+---
+
+## 🤝 Contribution
+
+Contributions are welcome! Here's how you can help:
+
+1.  **Fork the Project**: Create your own copy of the repository.
+2.  **Create a Branch**: `git checkout -b feature/AmazingFeature`
+3.  **Commit Your Changes**: `git commit -m 'Add some AmazingFeature'`
+4.  **Push to the Branch**: `git push origin feature/AmazingFeature`
+5.  **Open a Pull Request**: We'll review your changes and merge them!
+
+---
+
+## 📞 Contact & Support
+
+- **Issues**: [GitHub Issues](https://github.com/your-username/zenith/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-username/zenith/discussions)
+- **Email**: support@zenith.com
+
+---
+
+## 📝 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
 <div align="center">
 
 ### ⭐ Star this repo if you found it cool!
