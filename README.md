@@ -14,7 +14,7 @@
 
 🌐 **[Live Demo](https://beautiful-mochi-3592a9.netlify.app/)** | 📡 **[API](https://zenith-v5nteqrs.b4a.run)**
 
-[Features](#-features) • [Architecture](#-architecture) • [Database](#-database-design) • [API Docs](#-api-documentation) • [Performance](#-performance-optimization)
+[Features](#-features) • [Architecture](#-architecture) • [Tech Stack](#-tech-stack) • [Database](#-database-design) • [API Docs](#-api-documentation) • [Performance](#-performance-optimization)
 
 </div>
 
@@ -28,23 +28,28 @@
 - 🏆 **Top 10k Elite** - Highly optimized Redis Sorted Sets manage the top 10,000 players for ultra-fast retrieval.
 - 📊 **Score History** - Persistent score tracking backed by PostgreSQL.
 - 🔒 **Secure Authentication** - JWT-based stateless authentication.
-- 🎨 **Vibe-Coded Frontend** - The entire frontend was vibe-coded using **Claude 4.5**. (Zero lines of frontend code manually written!)
+- 🎨 **Modern & Responsive UI** - A sleek, fast, and accessible user interface built with the latest React 19 features.
 
 ---
 
 ## ✨ Features
 
-### 🎯 Core Features
+### 🎯 Core Capabilities
+- **High-Performance Leaderboard**: Ranks are calculated in real-time with sub-millisecond latency using Redis Sorted Sets.
+- **Dual-Layer Storage Architecture**:
+    - **Hot Data**: Top 10,000 players cached in Redis for instant access.
+    - **Cold Data**: Full user history and lower ranks securely persisted in PostgreSQL.
+- **Real-Time Event Broadcasting**: WebSocket (STOMP) integration pushes live score updates to all connected clients instantly.
+- **Secure Authentication System**: Stateless JWT (JSON Web Token) implementation with BCrypt password hashing for robust security.
+- **Comprehensive Score Tracking**: Maintains a complete history of every submission, not just the high score.
+- **Global Error Handling**: Centralized exception management ensures consistent and informative error responses.
+- **Validation Pipeline**: Strict input validation using Jakarta Validation API ensures data integrity before processing.
 
-**High-Performance Leaderboard**
-- **Redis Powered**: The top 10,000 ranks are served directly from Redis for sub-millisecond latency.
-- **Postgres Fallback**: While the elite top 10k are cached in Redis, full score histories and persistent data are safely stored in PostgreSQL on Supabase.
-- **Real-Time Updates**: WebSocket integration broadcasts score changes instantly to connected clients.
-
-**User Experience**
-- **Seamless Auth**: Secure signup and login flow using JWT.
-- **Interactive Dashboard**: View your current rank, best score, and submission history.
-- **Live Feed**: Watch the competition unfold in real-time.
+### 💻 User Experience
+- **Seamless Onboarding**: Quick and secure Signup/Login flow.
+- **Interactive Dashboard**: Personalized view showing current rank, best score, and recent activity.
+- **Live Competitor Feed**: Watch the competition unfold with a real-time ticker of incoming scores.
+- **Responsive Design**: Fully optimized for desktop, tablet, and mobile devices.
 
 ---
 
@@ -133,6 +138,35 @@ Zenith/
 │
 └── README.md
 ```
+
+---
+
+## 🛠️ Tech Stack
+
+### 🔙 Backend
+- **Spring Boot 3.5**: Robust, production-grade framework for building Java applications.
+- **Java 17**: LTS version ensuring stability and modern language features.
+- **Spring Security**: Comprehensive security framework handling JWT authentication and authorization.
+- **Spring Data JPA**: Abstraction over Hibernate for seamless PostgreSQL interaction.
+- **Spring Data Redis**: High-level abstraction for Redis operations and caching.
+- **Spring WebSocket**: Enables real-time, bi-directional communication (STOMP protocol).
+
+### 🎨 Frontend
+- **React 19**: The latest version of the library for building user interfaces.
+- **Vite**: Next-generation frontend tooling for ultra-fast builds.
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI development.
+- **Zustand**: Small, fast, and scalable bearbones state-management solution.
+- **React Query**: Powerful asynchronous state management for server-state synchronization.
+- **Vibe-Coding**: The entire frontend was vibe-coded using **Claude 4.5** (Zero manual lines of code).
+
+### 🗄️ Database
+- **PostgreSQL**: Primary relational database hosted on Supabase.
+- **Redis**: In-memory data structure store used as a database, cache, and message broker, hosted on RedisLabs.
+
+### ☁️ Deployment
+- **Back4App**: Container platform hosting the Spring Boot Backend (Dockerized).
+- **Netlify**: Global CDN and hosting platform for the React Frontend.
+- **Docker**: Used for containerizing the application for consistent deployment environments.
 
 ---
 
