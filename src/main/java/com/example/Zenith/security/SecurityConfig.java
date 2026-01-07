@@ -33,8 +33,6 @@ public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/ws-sockjs/**").permitAll()
-                        .requestMatchers("/topic/**").permitAll()
-                        .requestMatchers("/app/**").permitAll()
                         .anyRequest().authenticated())
             .csrf(csrf->csrf.disable())
            .sessionManagement(session -> session
